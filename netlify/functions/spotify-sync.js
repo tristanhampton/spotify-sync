@@ -8,7 +8,7 @@ export const config = {
   schedule: '0 6 * * *',
 };
 
-const PLAYLIST_NAME = process.env.PLAYLIST_NAME || 'All Library';
+const PLAYLIST_NAME = process.env.PLAYLIST_NAME || 'My Library';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const API_BASE = 'https://api.spotify.com/v1';
 
