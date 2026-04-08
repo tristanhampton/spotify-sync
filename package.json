@@ -1,0 +1,11 @@
+{
+  "name": "spotify-sync",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "get-token": "node setup/get-refresh-token.js"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.0.0"
+  }
+}
