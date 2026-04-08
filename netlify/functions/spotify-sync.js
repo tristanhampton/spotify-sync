@@ -84,10 +84,14 @@ async function getSavedAlbumTrackUris(token) {
   const uris = new Set();
 
   for (const item of albumItems) {
-    const albumId = item.album.id;
-    const first = await spotifyGet(token, `/albums/${albumId}/tracks?limit=50`);
-    const tracks = await paginate(token, first);
-    for (const t of tracks) uris.add(t.uri);
+    const { tracks } = item.album;
+    // Tracks are already included inline (up to 50). Use them directly.
+    for (const t of tracks.items) uris.add(t.uri);
+    // Only fetch more if the album has >50 tracks (box sets, etc.)
+    if (tracks.next) {
+      const extra = await paginate(token, { items: [], next: tracks.next });
+      for (const t of extra) uris.add(t.uri);
+    }
   }
 
   return uris;
