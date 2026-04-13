@@ -100,13 +100,23 @@ async function getSavedAlbumTrackUris(token) {
 // --- Playlist management ---
 
 async function getOrCreatePlaylist(token, name) {
+  // If PLAYLIST_ID is set, skip the lookup entirely — avoids re-creating on every run.
+  if (process.env.PLAYLIST_ID) {
+    console.log(`Using playlist ID from env: ${process.env.PLAYLIST_ID}`);
+    return process.env.PLAYLIST_ID;
+  }
+
   const me = await spotifyGet(token, '/me');
   const userId = me.id;
 
   const first = await spotifyGet(token, '/me/playlists?limit=50');
   const playlists = await paginate(token, first);
   const existing = playlists.find((p) => p.name === name && p.owner.id === userId);
-  if (existing) return existing.id;
+  if (existing) {
+    console.log(`Found existing playlist: "${name}" (${existing.id})`);
+    console.log(`TIP: Set PLAYLIST_ID=${existing.id} in Netlify env vars to skip this lookup.`);
+    return existing.id;
+  }
 
   const res = await fetch(`${API_BASE}/users/${userId}/playlists`, {
     method: 'POST',
@@ -122,7 +132,8 @@ async function getOrCreatePlaylist(token, name) {
   });
   if (!res.ok) throw new Error(`Failed to create playlist: ${res.status}`);
   const data = await res.json();
-  console.log(`Created playlist: "${name}"`);
+  console.log(`Created new playlist: "${name}" (${data.id})`);
+  console.log(`ACTION REQUIRED: Set PLAYLIST_ID=${data.id} in Netlify env vars to prevent creating duplicates.`);
   return data.id;
 }
 
