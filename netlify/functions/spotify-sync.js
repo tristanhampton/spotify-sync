@@ -102,8 +102,10 @@ async function getSavedAlbumTrackUris(token) {
 async function getOrCreatePlaylist(token, name) {
   // If PLAYLIST_ID is set, skip the lookup entirely — avoids re-creating on every run.
   if (process.env.PLAYLIST_ID) {
-    console.log(`Using playlist ID from env: ${process.env.PLAYLIST_ID}`);
-    return process.env.PLAYLIST_ID;
+    // Strip any share parameters (e.g. ?si=...) that may have been copied from a Spotify share URL.
+    const playlistId = process.env.PLAYLIST_ID.split('?')[0];
+    console.log(`Using playlist ID from env: ${playlistId}`);
+    return playlistId;
   }
 
   const me = await spotifyGet(token, '/me');
